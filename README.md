@@ -16,5 +16,6 @@ Features include:
 • Channel page
 • Settings page
 • Language translation to Spanish, Portuguese, and English
+• Back to home button on all pages
 
 This project is licensed under Creative Commons Zero 1.0 Universal, therefore you can modify it whenever you want, as long as you don't do anything weird, I know you guys.
