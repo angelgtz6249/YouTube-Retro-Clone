@@ -33,7 +33,6 @@
             background-color: #a3a3a3;
             border-radius: 50%;
         }
-        /* Estilos de interruptor (Switch) */
         .switch {
             position: relative;
             display: inline-block;
@@ -89,7 +88,7 @@
     <script type="text/babel">
         const YOUTUBE_API_KEY = "AIzaSyC6fHHTGlkndc4wsDgKRinMQUJVwqd-Xo0";
 
-        // Datos Simulados Estáticos (Mock Data) para evitar consumo de API
+        // Generamos 50 videos simulados de base para el modo offline
         const MOCK_VIDEOS = Array.from({ length: 50 }, (_, i) => ({
             id: `mock_vid_${i}`,
             title: `[Simulado] Video de Prueba Retro Clásico Número ${i + 1}`,
@@ -169,7 +168,7 @@
                 about: "Sobre",
                 aboutText: "Esta aplicação é um clone conmemorativo do YouTube otimizado para simular interfaces móveis clássicas e estruturadas de acordo com as especificações do design fornecido. Oferece navegação fluida entre vídeos, busca direta de conteúdo, visualizações de canais individuais, comentários dinâmicos e suporte multilíngue completo em espanhol, inglês e português. Integra a API do YouTube v3 para obter dados del mundo real de forma após-síncrona.",
                 duration: "Duração",
-                noResults: "Nenhum vídeo real encontrado o cota da API esgotada.",
+                noResults: "Nenhum vídeo real encontrado ou cota da API esgotada.",
                 fallbackVideoTitle: "Título do vídeo",
                 fallbackDesc: "Nenhuma descrição disponível para este vídeo.",
                 fallbackChannelDesc: "Nenhuma descrição disponível para este canal.",
@@ -196,7 +195,6 @@
 
             const t = translations[currentLanguage];
 
-            // Navegación personalizada con historial interno
             const navigateTo = (page) => {
                 setHistoryPages(prev => [...prev, page]);
                 setCurrentPage(page);
@@ -205,7 +203,7 @@
             const goBack = () => {
                 if (historyPages.length > 1) {
                     const newHistory = [...historyPages];
-                    newHistory.pop(); // Elimina la actual
+                    newHistory.pop();
                     const prevPage = newHistory[newHistory.length - 1];
                     setHistoryPages(newHistory);
                     setCurrentPage(prevPage);
@@ -222,19 +220,19 @@
                 if (!isRetry) setShowHoloModal(false);
 
                 if (isSimulatedMode) {
-                    // Modo simulado: No consume API
                     setTimeout(() => {
                         const filtered = query.trim() === "" 
                             ? MOCK_VIDEOS 
                             : MOCK_VIDEOS.filter(v => v.title.toLowerCase().includes(query.toLowerCase()));
                         setVideos(filtered);
                         setLoading(false);
-                    }, 400);
+                    }, 300);
                     return;
                 }
 
                 try {
                     let url = "";
+                    // La API de YouTube Data v3 acepta un máximo estricto de 50 resultados por petición HTTP.
                     if (query.trim() === "") {
                         url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics,contentDetails&chart=mostPopular&maxResults=50&key=${YOUTUBE_API_KEY}`;
                     } else {
@@ -282,7 +280,7 @@
                 } catch (err) {
                     console.error(err);
                     setVideos([]);
-                    setShowHoloModal(true); // Activa el modal Holo
+                    setShowHoloModal(true);
                 } finally {
                     setLoading(false);
                 }
@@ -339,7 +337,7 @@
                             uploads: "12",
                             description: "Descripción del canal simulado.",
                             avatar: "",
-                            videos: MOCK_VIDEOS.slice(0, 10)
+                            videos: MOCK_VIDEOS.slice(0, 15)
                         });
                         navigateTo("channel");
                         setLoading(false);
@@ -354,7 +352,6 @@
                     const data = await res.json();
                     const item = data.items?.[0];
 
-                    // Obtener videos ordenados por fecha (más reciente)
                     const videosUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=30&order=date&type=video&key=${YOUTUBE_API_KEY}`;
                     const resVideos = await fetch(videosUrl);
                     let channelVideos = [];
@@ -393,7 +390,6 @@
                 }
             };
 
-            // Ejecución al cambiar de idioma: NO realiza fetch asíncrono a la API
             React.useEffect(() => {
                 if (videos.length === 0) {
                     fetchVideos(searchQuery);
@@ -419,12 +415,10 @@
             return (
                 <div className="max-w-md mx-auto min-h-screen bg-black border-x border-gray-800 flex flex-col justify-between relative">
                     <div>
-                        {/* Cabecera */}
                         <header className="bg-gray-700 text-white font-bold text-lg px-3 py-2 border-b-2 border-black tracking-wide flex justify-between items-center">
                             <span className="cursor-pointer" onClick={goHome}>YouTube</span>
                         </header>
 
-                        {/* Barra de Búsqueda */}
                         <div className="bg-black p-2 flex items-center justify-between gap-2 border-b border-gray-900">
                             <form onSubmit={handleSearch} className="flex flex-1 items-center gap-2">
                                 <input
@@ -455,7 +449,6 @@
                             </div>
                         )}
 
-                        {/* Ventana Emergente Estilo Holo Android */}
                         {showHoloModal && (
                             <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-6">
                                 <div className="bg-zinc-900 border-2 border-cyan-500 w-full max-w-xs text-white p-4 font-sans shadow-2xl">
@@ -474,7 +467,6 @@
                             </div>
                         )}
 
-                        {/* VISTA: Home / Búsqueda */}
                         {(currentPage === "home" || currentPage === "search") && !loading && (
                             <div className="p-2 space-y-4">
                                 {videos.length === 0 ? (
@@ -505,7 +497,6 @@
                             </div>
                         )}
 
-                        {/* VISTA: Reproductor */}
                         {currentPage === "player" && selectedVideo && (
                             <div className="p-2 space-y-4">
                                 <div className="w-full aspect-video bg-zinc-900 border border-zinc-800 flex items-center justify-center">
@@ -530,7 +521,6 @@
                                     </div>
                                 </div>
 
-                                {/* Sección: Videos Relacionados (Máximo 20) */}
                                 <div className="pt-2 border-t border-zinc-900">
                                     <h4 className="text-xs font-bold text-zinc-400 tracking-wider uppercase mb-3 px-1">{t.relatedVideos}</h4>
                                     <div className="space-y-3">
@@ -553,7 +543,6 @@
                                     </div>
                                 </div>
 
-                                {/* Sección de Comentarios */}
                                 <div className="pt-4 border-t border-zinc-900">
                                     <h4 className="text-xs font-bold text-zinc-400 tracking-wider uppercase mb-2 px-1">{t.comments}</h4>
                                     <div className="space-y-2">
@@ -572,7 +561,6 @@
                             </div>
                         )}
 
-                        {/* VISTA: Canal */}
                         {currentPage === "channel" && selectedChannel && (
                             <div className="p-2 space-y-4">
                                 <div className="flex items-center gap-3 bg-zinc-950 p-3 border border-zinc-900">
@@ -614,12 +602,10 @@
                             </div>
                         )}
 
-                        {/* VISTA: Configuración */}
                         {currentPage === "config" && (
                             <div className="p-3 space-y-6">
                                 <h3 className="text-lg font-bold border-b border-zinc-800 pb-1 text-gray-200">{t.configTitle}</h3>
                                 
-                                {/* Interruptor Modo Simulado */}
                                 <div className="flex items-center justify-between bg-zinc-950 p-3 border border-zinc-900">
                                     <span className="text-sm font-bold text-gray-300">{t.simulatedMode}</span>
                                     <label className="switch">
@@ -658,7 +644,6 @@
                                     </p>
                                 </div>
 
-                                {/* Sección de Licencia CC0 */}
                                 <div className="space-y-1 pt-2">
                                     <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">{t.licenseTitle}</h4>
                                     <p className="text-[11px] text-zinc-500 leading-normal bg-zinc-950 p-3 border border-zinc-900 font-mono">
@@ -670,7 +655,6 @@
                         )}
                     </div>
 
-                    {/* Footer de navegación fijo en la parte inferior */}
                     <footer className="bg-black border-t border-zinc-900 py-3 px-4 flex justify-center items-center gap-12 sticky bottom-0 z-40">
                         <button 
                             onClick={goBack} 
@@ -696,7 +680,8 @@
             );
         }
 
-        const root = tragedies = ReactDOM.createRoot(document.getElementById('root'));
+        // Corrección del arranque de React 18 sin variables intrusas
+        const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
 </body>
