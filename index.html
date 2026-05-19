@@ -9,7 +9,6 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
-        /* Estilos específicos para imitar el aspecto de las capturas de pantalla */
         body {
             background-color: #000000;
             color: #ffffff;
@@ -17,11 +16,9 @@
             margin: 0;
             padding: 0;
         }
-        /* Eliminar estilos por defecto de inputs */
         input:focus {
             outline: none;
         }
-        /* Estilo de tres puntitos verticales */
         .vertical-dots {
             display: flex;
             flex-direction: column;
@@ -36,18 +33,54 @@
             background-color: #a3a3a3;
             border-radius: 50%;
         }
+        /* Estilos de interruptor (Switch) */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+        .switch input { 
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #333333;
+            transition: .2s;
+            border: 1px solid #555555;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: #a3a3a3;
+            transition: .2s;
+        }
+        input:checked + .slider {
+            background-color: #0099cc;
+        }
+        input:checked + .slider:before {
+            transform: translateX(22px);
+            background-color: #ffffff;
+        }
     </style>
 	<link rel="manifest" href="manifest.json">
-
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .then(reg => console.log('SW registrado', reg))
-        .catch(err => console.error('Error al registrar SW', err));
-    });
-  }
-</script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js')
+            .then(reg => console.log('SW registrado', reg))
+            .catch(err => console.error('Error al registrar SW', err));
+        });
+      }
+    </script>
 </head>
 <body>
 
@@ -55,6 +88,24 @@
 
     <script type="text/babel">
         const YOUTUBE_API_KEY = "AIzaSyC6fHHTGlkndc4wsDgKRinMQUJVwqd-Xo0";
+
+        // Datos Simulados Estáticos (Mock Data) para evitar consumo de API
+        const MOCK_VIDEOS = Array.from({ length: 50 }, (_, i) => ({
+            id: `mock_vid_${i}`,
+            title: `[Simulado] Video de Prueba Retro Clásico Número ${i + 1}`,
+            likes: (1500 + i * 23).toLocaleString(),
+            views: (50000 + i * 145).toLocaleString(),
+            date: "18/5/2026",
+            duration: "04:20",
+            channelName: "@Canal_Simulado_Retro",
+            channelId: "UC_mock_channel_123",
+            description: "Esta es una descripción de video completamente simulada para pruebas locales sin internet ni cuota de API.",
+            thumbnail: "",
+            comments: [
+                { author: "@User_Retro", text: "Excelente interfaz, idéntica a la versión móvil de 2012." },
+                { author: "@Nostalgic_Dev", text: "Me encanta cómo funciona el cambio de idiomas local." }
+            ]
+        }));
 
         const translations = {
             Español: {
@@ -74,7 +125,12 @@
                 fallbackVideoTitle: "Título del video",
                 fallbackDesc: "Sin descripción disponible para este video.",
                 fallbackChannelDesc: "Sin descripción disponible para este canal.",
-                configTitle: "Configuración"
+                configTitle: "Configuración",
+                simulatedMode: "Modo simulado",
+                licenseTitle: "Licencia",
+                relatedVideos: "Videos relacionados",
+                modalTitle: "error de conexión o cuota de API agotada",
+                retryBtn: "Reintentar"
             },
             English: {
                 searchPlaceholder: "Search...",
@@ -93,7 +149,12 @@
                 fallbackVideoTitle: "Video Title",
                 fallbackDesc: "No description available for this video.",
                 fallbackChannelDesc: "No description available for this channel.",
-                configTitle: "Settings"
+                configTitle: "Settings",
+                simulatedMode: "Simulated mode",
+                licenseTitle: "License",
+                relatedVideos: "Related videos",
+                modalTitle: "connection error or API quota exceeded",
+                retryBtn: "Retry"
             },
             Português: {
                 searchPlaceholder: "Buscar...",
@@ -106,37 +167,69 @@
                 comments: "Comentários",
                 language: "Idioma",
                 about: "Sobre",
-                aboutText: "Esta aplicação é um clone conmemorativo do YouTube otimizado para simular interfaces móveis clássicas e estruturadas de acordo com as especificações do design fornecido. Oferece navegação fluida entre vídeos, busca direta de conteúdo, visualizações de canais individuais, comentários dinâmicos e suporte multilíngue completo em espanhol, inglês e português. Integra a API do YouTube v3 para obter dados do mundo real de forma após-síncrona.",
+                aboutText: "Esta aplicação é um clone conmemorativo do YouTube otimizado para simular interfaces móveis clássicas e estruturadas de acordo com as especificações do design fornecido. Oferece navegação fluida entre vídeos, busca direta de conteúdo, visualizações de canais individuais, comentários dinâmicos e suporte multilíngue completo em espanhol, inglês e português. Integra a API do YouTube v3 para obter dados del mundo real de forma após-síncrona.",
                 duration: "Duração",
-                noResults: "Nenhum vídeo real encontrado ou cota da API esgotada.",
+                noResults: "Nenhum vídeo real encontrado o cota da API esgotada.",
                 fallbackVideoTitle: "Título do vídeo",
                 fallbackDesc: "Nenhuma descrição disponível para este vídeo.",
                 fallbackChannelDesc: "Nenhuma descrição disponível para este canal.",
-                configTitle: "Configurações"
+                configTitle: "Configurações",
+                simulatedMode: "Modo simulado",
+                licenseTitle: "Licença",
+                relatedVideos: "Vídeos relacionados",
+                modalTitle: "erro de conexão ou cota da API esgotada",
+                retryBtn: "Tentar novamente"
             }
         };
 
         function App() {
             const [currentLanguage, setCurrentLanguage] = React.useState("Español");
             const [currentPage, setCurrentPage] = React.useState("home");
+            const [historyPages, setHistoryPages] = React.useState(["home"]);
             const [searchQuery, setSearchQuery] = React.useState("");
             const [selectedVideo, setSelectedVideo] = React.useState(null);
             const [selectedChannel, setSelectedChannel] = React.useState(null);
             const [videos, setVideos] = React.useState([]);
             const [loading, setLoading] = React.useState(false);
-            const [errorMsg, setErrorMsg] = React.useState("");
-            const [playIframe, setPlayIframe] = React.useState(false);
+            const [showHoloModal, setShowHoloModal] = React.useState(false);
+            const [isSimulatedMode, setIsSimulatedMode] = React.useState(false);
 
             const t = translations[currentLanguage];
 
-            const fetchVideos = async (query = "") => {
-                setLoading(true);
-                setErrorMsg("");
+            // Navegación personalizada con historial interno
+            const navigateTo = (page) => {
+                setHistoryPages(prev => [...prev, page]);
+                setCurrentPage(page);
+            };
 
-                if (!YOUTUBE_API_KEY || YOUTUBE_API_KEY === "INSERTA_TU_CLAVE_API") {
-                    setErrorMsg("Falta configurar una clave de API válida.");
-                    setVideos([]);
-                    setLoading(false);
+            const goBack = () => {
+                if (historyPages.length > 1) {
+                    const newHistory = [...historyPages];
+                    newHistory.pop(); // Elimina la actual
+                    const prevPage = newHistory[newHistory.length - 1];
+                    setHistoryPages(newHistory);
+                    setCurrentPage(prevPage);
+                }
+            };
+
+            const goHome = () => {
+                setHistoryPages(["home"]);
+                setCurrentPage("home");
+            };
+
+            const fetchVideos = async (query = "", isRetry = false) => {
+                setLoading(true);
+                if (!isRetry) setShowHoloModal(false);
+
+                if (isSimulatedMode) {
+                    // Modo simulado: No consume API
+                    setTimeout(() => {
+                        const filtered = query.trim() === "" 
+                            ? MOCK_VIDEOS 
+                            : MOCK_VIDEOS.filter(v => v.title.toLowerCase().includes(query.toLowerCase()));
+                        setVideos(filtered);
+                        setLoading(false);
+                    }, 400);
                     return;
                 }
 
@@ -149,7 +242,7 @@
                     }
 
                     const response = await fetch(url);
-                    if (!response.ok) throw new Error("Error en la API de YouTube");
+                    if (!response.ok) throw new Error("API Error");
                     const data = await response.json();
 
                     let items = data.items || [];
@@ -168,7 +261,6 @@
 
                     const formattedVideos = items.map(item => {
                         const durationISO = item.contentDetails?.duration || "PT3M15S";
-                        const duration = parseISODuration(durationISO);
                         const finalId = item.id?.videoId || item.id;
 
                         return {
@@ -177,7 +269,7 @@
                             likes: parseInt(item.statistics?.likeCount || 0).toLocaleString(),
                             views: parseInt(item.statistics?.viewCount || 0).toLocaleString(),
                             date: new Date(item.snippet?.publishedAt).toLocaleDateString(),
-                            duration: duration,
+                            duration: parseISODuration(durationISO),
                             channelName: item.snippet?.channelTitle ? `@${item.snippet.channelTitle.replace(/\s+/g, "_")}` : "@canal",
                             channelId: item.snippet?.channelId,
                             description: item.snippet?.description || t.fallbackDesc,
@@ -187,11 +279,10 @@
                     });
 
                     setVideos(formattedVideos);
-
                 } catch (err) {
                     console.error(err);
-                    setErrorMsg("Error de conexión o cuota de API de YouTube agotada.");
                     setVideos([]);
+                    setShowHoloModal(true); // Activa el modal Holo
                 } finally {
                     setLoading(false);
                 }
@@ -199,7 +290,7 @@
 
             const parseISODuration = (isoString) => {
                 const match = isoString.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-                if (!match) return "00:00:00";
+                if (!match) return "00:00";
                 const hours = parseInt(match[1] || 0);
                 const minutes = parseInt(match[2] || 0);
                 const seconds = parseInt(match[3] || 0);
@@ -207,41 +298,64 @@
                 return hours > 0 ? `${pad(hours)}:${pad(minutes)}:${pad(seconds)}` : `${pad(minutes)}:${pad(seconds)}`;
             };
 
-            const fetchComments = async (videoId) => {
-                if (!YOUTUBE_API_KEY || !videoId) return;
+            const fetchCommentsAndRelated = async (video) => {
+                if (isSimulatedMode) {
+                    setSelectedVideo({
+                        ...video,
+                        comments: [
+                            { author: "@User_1", text: "Comentario simulado de prueba a" },
+                            { author: "@User_2", text: "Comentario simulado de prueba b" }
+                        ]
+                    });
+                    return;
+                }
+
+                let fetchedComments = [];
                 try {
-                    const url = `https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${videoId}&maxResults=15&key=${YOUTUBE_API_KEY}`;
+                    const url = `https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${video.id}&maxResults=15&key=${YOUTUBE_API_KEY}`;
                     const res = await fetch(url);
                     if (res.ok) {
                         const data = await res.json();
-                        const fetchedComments = (data.items || []).map(item => ({
+                        fetchedComments = (data.items || []).map(item => ({
                             author: `@${item.snippet.topLevelComment.snippet.authorDisplayName.replace(/\s+/g, "_")}`,
                             text: item.snippet.topLevelComment.snippet.textDisplay
                         }));
-                        setSelectedVideo(prev => prev ? { ...prev, comments: fetchedComments } : null);
                     }
                 } catch (err) {
-                    console.error("Error fetching comments:", err);
+                    console.error(err);
                 }
+
+                setSelectedVideo({ ...video, comments: fetchedComments });
             };
 
             const fetchChannelDetails = async (channelId, channelHandle) => {
                 setLoading(true);
-                if (!YOUTUBE_API_KEY || !channelId) {
-                    setLoading(false);
+                if (isSimulatedMode) {
+                    setTimeout(() => {
+                        setSelectedChannel({
+                            name: channelHandle,
+                            subscribers: "5,000",
+                            videoViews: "125,000",
+                            uploads: "12",
+                            description: "Descripción del canal simulado.",
+                            avatar: "",
+                            videos: MOCK_VIDEOS.slice(0, 10)
+                        });
+                        navigateTo("channel");
+                        setLoading(false);
+                    }, 300);
                     return;
                 }
 
                 try {
                     const chanUrl = `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${channelId}&key=${YOUTUBE_API_KEY}`;
                     const res = await fetch(chanUrl);
-                    if (!res.ok) throw new Error("No se pudo obtener el canal");
+                    if (!res.ok) throw new Error("Channel API Fail");
                     const data = await res.json();
                     const item = data.items?.[0];
 
-                    if (!item) throw new Error("Canal inexistente");
-
-                    const videosUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=20&order=date&type=video&key=${YOUTUBE_API_KEY}`;
+                    // Obtener videos ordenados por fecha (más reciente)
+                    const videosUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=${channelId}&maxResults=30&order=date&type=video&key=${YOUTUBE_API_KEY}`;
                     const resVideos = await fetch(videosUrl);
                     let channelVideos = [];
                     if (resVideos.ok) {
@@ -270,51 +384,47 @@
                         videos: channelVideos
                     });
 
-                    setCurrentPage("channel");
+                    navigateTo("channel");
                 } catch (err) {
                     console.error(err);
-                    setErrorMsg("Error al cargar los detalles reales de este canal.");
+                    setShowHoloModal(true);
                 } finally {
                     setLoading(false);
                 }
             };
 
+            // Ejecución al cambiar de idioma: NO realiza fetch asíncrono a la API
             React.useEffect(() => {
-                fetchVideos(searchQuery);
+                if (videos.length === 0) {
+                    fetchVideos(searchQuery);
+                }
             }, [currentLanguage]);
 
             const handleSearch = (e) => {
                 if (e) e.preventDefault();
                 fetchVideos(searchQuery);
-                setCurrentPage("search");
+                navigateTo("search");
             };
 
             const handleVideoClick = (video) => {
-                setSelectedVideo(video);
-                setPlayIframe(false);
-                setCurrentPage("player");
-                if (video.id) {
-                    fetchComments(video.id);
-                }
+                fetchCommentsAndRelated(video);
+                navigateTo("player");
             };
 
-            const handleChannelClick = (channelId, channelName) => {
-                if (channelId) {
-                    fetchChannelDetails(channelId, channelName);
-                }
-            };
-
-            const changeLanguage = (lang) => {
-                setCurrentLanguage(lang);
+            const handleRetry = () => {
+                setShowHoloModal(false);
+                fetchVideos(searchQuery, true);
             };
 
             return (
-                <div className="max-w-md mx-auto min-h-screen bg-black border-x border-gray-800 flex flex-col justify-between">
+                <div className="max-w-md mx-auto min-h-screen bg-black border-x border-gray-800 flex flex-col justify-between relative">
                     <div>
-                        <header className="bg-gray-700 text-white font-bold text-lg px-3 py-2 border-b-2 border-black tracking-wide">
-                            YouTube
+                        {/* Cabecera */}
+                        <header className="bg-gray-700 text-white font-bold text-lg px-3 py-2 border-b-2 border-black tracking-wide flex justify-between items-center">
+                            <span className="cursor-pointer" onClick={goHome}>YouTube</span>
                         </header>
 
+                        {/* Barra de Búsqueda */}
                         <div className="bg-black p-2 flex items-center justify-between gap-2 border-b border-gray-900">
                             <form onSubmit={handleSearch} className="flex flex-1 items-center gap-2">
                                 <input
@@ -332,11 +442,7 @@
                                 </button>
                             </form>
 
-                            <div
-                                onClick={() => setCurrentPage("config")}
-                                className="vertical-dots pl-1 py-1"
-                                title={t.configTitle}
-                            >
+                            <div onClick={() => navigateTo("config")} className="vertical-dots pl-1 py-1">
                                 <div></div>
                                 <div></div>
                                 <div></div>
@@ -344,17 +450,31 @@
                         </div>
 
                         {loading && (
-                            <div className="text-center p-6 text-yellow-400 font-bold">
+                            <div className="text-center p-6 text-yellow-400 font-bold tracking-widest font-mono">
                                 CARGANDO...
                             </div>
                         )}
 
-                        {errorMsg && (
-                            <div className="text-center p-4 text-red-500 font-mono text-xs">
-                                {errorMsg}
+                        {/* Ventana Emergente Estilo Holo Android */}
+                        {showHoloModal && (
+                            <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-6">
+                                <div className="bg-zinc-900 border-2 border-cyan-500 w-full max-w-xs text-white p-4 font-sans shadow-2xl">
+                                    <h3 className="text-cyan-400 font-medium text-lg border-b border-cyan-900 pb-2 mb-4 capitalize">
+                                        {t.modalTitle}
+                                    </h3>
+                                    <div className="flex justify-end mt-6">
+                                        <button 
+                                            onClick={handleRetry}
+                                            className="bg-zinc-800 hover:bg-zinc-700 text-cyan-400 font-bold px-6 py-2 border border-zinc-700 text-sm tracking-wide transition uppercase"
+                                        >
+                                            {t.retryBtn}
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         )}
 
+                        {/* VISTA: Home / Búsqueda */}
                         {(currentPage === "home" || currentPage === "search") && !loading && (
                             <div className="p-2 space-y-4">
                                 {videos.length === 0 ? (
@@ -362,32 +482,22 @@
                                         {t.noResults}
                                     </div>
                                 ) : (
-                                    videos.map((video, index) => (
+                                    videos.slice(0, 200).map((video, idx) => (
                                         <div
-                                            key={`${video.id}-${index}`}
+                                            key={`${video.id}-${idx}`}
                                             className="flex gap-3 cursor-pointer hover:bg-zinc-900 p-1.5 transition"
                                             onClick={() => handleVideoClick(video)}
                                         >
                                             <div className="w-32 h-20 bg-zinc-900 flex-shrink-0 flex items-center justify-center border border-gray-700 overflow-hidden relative">
-                                                {video.thumbnail ? (
-                                                    <img
-                                                        src={video.thumbnail}
-                                                        alt={video.title}
-                                                        className="w-full h-full object-cover"
-                                                    />
-                                                ) : (
-                                                    <span className="text-xs text-zinc-500 font-mono">No Image</span>
-                                                )}
-                                                <span className="absolute bottom-0.5 right-0.5 bg-black/80 text-[10px] text-white px-1 font-mono">
-                                                    {video.duration}
-                                                </span>
+                                                {video.thumbnail && <img src={video.thumbnail} alt="" className="w-full h-full object-cover" />}
+                                                <span className="absolute bottom-0.5 right-0.5 bg-black/80 text-[10px] text-white px-1 font-mono">{video.duration}</span>
                                             </div>
-
-                                            <div className="flex-1 text-white text-[13px] leading-tight flex flex-col justify-start">
-                                                <h3 className="font-bold text-[14px] line-clamp-2 leading-snug">{video.title}</h3>
-                                                <p className="mt-1 font-semibold"># {t.likes}: {video.likes}</p>
-                                                <p className="font-semibold"># {t.views}: {video.views}</p>
-                                                <p className="text-gray-400 font-medium">{video.date}</p>
+                                            <div className="flex-1 min-w-0">
+                                                <h4 className="text-sm font-bold text-gray-200 line-clamp-2 leading-tight mb-1">{video.title}</h4>
+                                                <p className="text-xs text-neutral-400 truncate mb-0.5">{video.channelName}</p>
+                                                <p className="text-[11px] text-zinc-500">
+                                                    {video.views} {t.views}
+                                                </p>
                                             </div>
                                         </div>
                                     ))
@@ -395,144 +505,107 @@
                             </div>
                         )}
 
-                        {currentPage === "player" && selectedVideo && !loading && (
-                            <div className="p-2">
-                                <div className="flex gap-3 items-start mb-3">
-                                    <div className="w-1/2 flex-shrink-0">
-                                        {!playIframe ? (
-                                            <div
-                                                onClick={() => setPlayIframe(true)}
-                                                className="w-full aspect-[4/3] bg-zinc-900 text-black flex flex-col justify-center items-center cursor-pointer relative group border border-gray-700"
-                                            >
-                                                {selectedVideo.thumbnail ? (
-                                                    <img
-                                                        src={selectedVideo.thumbnail}
-                                                        alt={selectedVideo.title}
-                                                        className="w-full h-full object-cover"
-                                                    />
-                                                ) : (
-                                                    <div className="w-12 h-9 bg-zinc-800 text-white flex items-center justify-center rounded shadow-md group-hover:scale-110 transition">
-                                                        <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
-                                                            <path d="M8 5v14l11-7z"/>
-                                                        </svg>
-                                                    </div>
-                                                )}
-                                                <span className="absolute bottom-1 right-1 bg-black/80 text-white font-mono text-[9px] px-1 py-0.5">
-                                                    {selectedVideo.duration}
-                                                </span>
-                                            </div>
-                                        ) : (
-                                            <div className="w-full aspect-[4/3] bg-black border border-gray-700">
-                                                {selectedVideo.id ? (
-                                                    <iframe
-                                                        className="w-full h-full"
-                                                        src={`https://www.youtube.com/embed/${selectedVideo.id}?autoplay=1`}
-                                                        title={selectedVideo.title}
-                                                        frameBorder="0"
-                                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                        allowFullScreen
-                                                    ></iframe>
-                                                ) : (
-                                                    <div className="w-full h-full flex flex-col items-center justify-center text-center p-1.5 bg-zinc-900">
-                                                        <p className="text-red-400 font-bold text-[10px] mb-1">ID Inválido</p>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="w-1/2 text-[12px] text-white leading-tight space-y-1 flex flex-col justify-start">
-                                        <h2 className="font-bold text-[13px] text-white line-clamp-3 leading-snug mb-0.5">
-                                            {selectedVideo.title}
-                                        </h2>
-                                        <p className="font-semibold"># {t.likes}: {selectedVideo.likes}</p>
-                                        <p className="font-semibold"># {t.views}: {selectedVideo.views}</p>
-                                        <p
-                                            className="text-yellow-400 hover:underline cursor-pointer font-bold text-[13px] mt-1"
+                        {/* VISTA: Reproductor */}
+                        {currentPage === "player" && selectedVideo && (
+                            <div className="p-2 space-y-4">
+                                <div className="w-full aspect-video bg-zinc-900 border border-zinc-800 flex items-center justify-center">
+                                    <iframe
+                                        className="w-full h-full"
+                                        src={`https://www.youtube.com/embed/${selectedVideo.id}?autoplay=1`}
+                                        frameBorder="0"
+                                        allowFullScreen
+                                    ></iframe>
+                                </div>
+                                <div>
+                                    <h3 className="text-base font-bold text-white mb-1">{selectedVideo.title}</h3>
+                                    <div className="text-xs text-neutral-400 space-y-1 bg-zinc-950 p-2 border border-zinc-900">
+                                        <p 
+                                            className="text-cyan-400 font-bold cursor-pointer hover:underline"
                                             onClick={() => handleChannelClick(selectedVideo.channelId, selectedVideo.channelName)}
                                         >
                                             {selectedVideo.channelName}
                                         </p>
-                                        <p className="text-gray-400 text-[11px] font-medium">{selectedVideo.date}</p>
+                                        <p>{selectedVideo.views} {t.views} | {selectedVideo.likes} {t.likes}</p>
+                                        <p className="text-zinc-500 text-[11px] pt-1 border-t border-zinc-900">{selectedVideo.description}</p>
                                     </div>
                                 </div>
 
-                                <div className="mt-3 py-2 border-t border-gray-800">
-                                    <p className="text-gray-300 text-[12px] leading-relaxed">
-                                        {selectedVideo.description}
-                                    </p>
+                                {/* Sección: Videos Relacionados (Máximo 20) */}
+                                <div className="pt-2 border-t border-zinc-900">
+                                    <h4 className="text-xs font-bold text-zinc-400 tracking-wider uppercase mb-3 px-1">{t.relatedVideos}</h4>
+                                    <div className="space-y-3">
+                                        {videos.filter(v => v.id !== selectedVideo.id).slice(0, 20).map((video, idx) => (
+                                            <div
+                                                key={`related-${video.id}-${idx}`}
+                                                className="flex gap-3 cursor-pointer hover:bg-zinc-900 p-1"
+                                                onClick={() => handleVideoClick(video)}
+                                            >
+                                                <div className="w-24 h-16 bg-zinc-900 flex-shrink-0 border border-gray-800 relative">
+                                                    {video.thumbnail && <img src={video.thumbnail} alt="" className="w-full h-full object-cover" />}
+                                                    <span className="absolute bottom-0.5 right-0.5 bg-black/80 text-[9px] text-white px-0.5 font-mono">{video.duration}</span>
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h5 className="text-xs font-bold text-gray-300 line-clamp-2 leading-tight">{video.title}</h5>
+                                                    <p className="text-[10px] text-zinc-500 mt-0.5">{video.views} {t.views}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
 
-                                <div className="mt-3">
-                                    <div className="bg-gray-700 font-bold px-2 py-1.5 text-sm tracking-wider border-b border-black">
-                                        {t.comments}
-                                    </div>
-                                    <div className="mt-2 space-y-3 pl-1">
+                                {/* Sección de Comentarios */}
+                                <div className="pt-4 border-t border-zinc-900">
+                                    <h4 className="text-xs font-bold text-zinc-400 tracking-wider uppercase mb-2 px-1">{t.comments}</h4>
+                                    <div className="space-y-2">
                                         {selectedVideo.comments && selectedVideo.comments.length > 0 ? (
-                                            selectedVideo.comments.map((comm, idx) => (
-                                                <div key={idx} className="text-xs leading-normal">
-                                                    <p className="text-zinc-400 font-bold block">{comm.author}</p>
-                                                    <p className="text-white font-medium text-[13px]">{comm.text}</p>
+                                            selectedVideo.comments.map((c, i) => (
+                                                <div key={i} className="bg-zinc-950 p-2 border border-zinc-900 text-xs">
+                                                    <span className="text-neutral-300 font-bold block mb-0.5">{c.author}</span>
+                                                    <p className="text-zinc-400" dangerouslySetInnerHTML={{ __html: c.text }}></p>
                                                 </div>
                                             ))
                                         ) : (
-                                            <div className="text-zinc-500 text-xs py-2 italic">
-                                                No hay comentarios disponibles en este video.
-                                            </div>
+                                            <p className="text-xs text-zinc-600 px-1">Sin comentarios en este video.</p>
                                         )}
                                     </div>
                                 </div>
                             </div>
                         )}
 
-                        {currentPage === "channel" && selectedChannel && !loading && (
-                            <div className="p-2">
-                                <div className="flex gap-4 items-start mb-3">
-                                    <div className="w-24 h-24 bg-zinc-900 border border-gray-700 flex-shrink-0 flex items-center justify-center overflow-hidden">
-                                        {selectedChannel.avatar ? (
-                                            <img src={selectedChannel.avatar} alt={selectedChannel.name} className="w-full h-full object-cover" />
-                                        ) : (
-                                            <span className="text-zinc-500 font-bold text-xs">No Avatar</span>
-                                        )}
+                        {/* VISTA: Canal */}
+                        {currentPage === "channel" && selectedChannel && (
+                            <div className="p-2 space-y-4">
+                                <div className="flex items-center gap-3 bg-zinc-950 p-3 border border-zinc-900">
+                                    <div className="w-14 h-14 bg-zinc-800 rounded-full border border-zinc-700 overflow-hidden flex-shrink-0">
+                                        {selectedChannel.avatar && <img src={selectedChannel.avatar} alt="" className="w-full h-full object-cover" />}
                                     </div>
-
-                                    <div className="text-[13px] text-white space-y-0.5 leading-snug">
-                                        <h2 className="font-bold text-lg leading-tight mb-1">{selectedChannel.name}</h2>
-                                        <p className="font-semibold"># {t.subscribers}: {selectedChannel.subscribers}</p>
-                                        <p className="font-semibold"># {t.videoViews}: {selectedChannel.videoViews}</p>
-                                        <p className="font-semibold"># {t.uploads}: {selectedChannel.uploads}</p>
+                                    <div>
+                                        <h3 className="text-base font-bold text-white">{selectedChannel.name}</h3>
+                                        <p className="text-xs text-neutral-400">
+                                            {selectedChannel.subscribers} {t.subscribers}
+                                        </p>
+                                        <p className="text-[11px] text-zinc-500">
+                                            {selectedChannel.videoViews} {t.videoViews} | {selectedChannel.uploads} {t.uploads}
+                                        </p>
                                     </div>
                                 </div>
-
-                                <div className="py-2 border-t border-gray-800">
-                                    <p className="text-gray-300 text-[12px] leading-relaxed">
-                                        {selectedChannel.description}
-                                    </p>
-                                </div>
-
-                                <div className="mt-3">
-                                    <div className="bg-gray-700 font-bold px-2 py-1.5 text-sm tracking-wider border-b border-black">
-                                        {t.channelUploads}
-                                    </div>
-                                    <div className="mt-2 space-y-4">
+                                <p className="text-xs text-zinc-400 px-1">{selectedChannel.description}</p>
+                                
+                                <div className="border-t border-zinc-900 pt-3">
+                                    <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2 px-1">{t.channelUploads}</h4>
+                                    <div className="space-y-3">
                                         {selectedChannel.videos.map((video, idx) => (
                                             <div
-                                                key={`${video.id}-${idx}`}
-                                                className="flex gap-3 cursor-pointer hover:bg-zinc-900 p-1 transition"
+                                                key={`chan-vid-${video.id}-${idx}`}
+                                                className="flex gap-3 cursor-pointer hover:bg-zinc-900 p-1"
                                                 onClick={() => handleVideoClick(video)}
                                             >
-                                                <div className="w-28 h-16 bg-zinc-900 flex-shrink-0 flex items-center justify-center overflow-hidden relative border border-gray-700">
-                                                    {video.thumbnail ? (
-                                                        <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" />
-                                                    ) : (
-                                                        <span className="text-xs text-zinc-500 font-mono">Video</span>
-                                                    )}
+                                                <div className="w-28 h-18 bg-zinc-900 flex-shrink-0 border border-gray-800 relative">
+                                                    {video.thumbnail && <img src={video.thumbnail} alt="" className="w-full h-full object-cover" />}
                                                 </div>
-                                                <div className="text-[12px] text-white leading-tight">
-                                                    <h4 className="font-bold line-clamp-1">{video.title}</h4>
-                                                    <p className="font-semibold"># {t.likes}: {video.likes}</p>
-                                                    <p className="font-semibold"># {t.views}: {video.views}</p>
-                                                    <p className="text-gray-400 text-[10px]">{video.date}</p>
+                                                <div className="flex-1 min-w-0">
+                                                    <h5 className="text-xs font-bold text-gray-300 line-clamp-2">{video.title}</h5>
+                                                    <p className="text-[10px] text-zinc-500 mt-1">{video.date}</p>
                                                 </div>
                                             </div>
                                         ))}
@@ -541,19 +614,35 @@
                             </div>
                         )}
 
+                        {/* VISTA: Configuración */}
                         {currentPage === "config" && (
                             <div className="p-3 space-y-6">
-                                <div>
-                                    <h2 className="text-lg font-bold border-b border-gray-800 pb-1 mb-3">{t.language}</h2>
+                                <h3 className="text-lg font-bold border-b border-zinc-800 pb-1 text-gray-200">{t.configTitle}</h3>
+                                
+                                {/* Interruptor Modo Simulado */}
+                                <div className="flex items-center justify-between bg-zinc-950 p-3 border border-zinc-900">
+                                    <span className="text-sm font-bold text-gray-300">{t.simulatedMode}</span>
+                                    <label className="switch">
+                                        <input 
+                                            type="checkbox" 
+                                            checked={isSimulatedMode} 
+                                            onChange={(e) => setIsSimulatedMode(e.target.checked)}
+                                        />
+                                        <span className="slider"></span>
+                                    </label>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">{t.language}</h4>
                                     <div className="flex gap-2">
                                         {["Español", "English", "Português"].map((lang) => (
                                             <button
                                                 key={lang}
                                                 onClick={() => changeLanguage(lang)}
-                                                className={`px-3 py-1.5 font-bold border text-sm transition rounded-none ${
+                                                className={`px-3 py-1.5 text-xs font-bold border tracking-wide transition ${
                                                     currentLanguage === lang
-                                                    ? "bg-white text-black border-white"
-                                                    : "bg-transparent text-white border-zinc-500 hover:bg-zinc-900"
+                                                        ? "bg-white text-black border-white"
+                                                        : "bg-black text-gray-400 border-zinc-800 hover:text-white"
                                                 }`}
                                             >
                                                 {lang}
@@ -562,34 +651,52 @@
                                     </div>
                                 </div>
 
-                                <div>
-                                    <h2 className="text-lg font-bold border-b border-gray-800 pb-1 mb-2">{t.about}</h2>
-                                    <p className="text-sm text-gray-300 leading-relaxed text-justify">
+                                <div className="space-y-1">
+                                    <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">{t.about}</h4>
+                                    <p className="text-xs text-zinc-400 leading-relaxed bg-zinc-950 p-3 border border-zinc-900">
                                         {t.aboutText}
+                                    </p>
+                                </div>
+
+                                {/* Sección de Licencia CC0 */}
+                                <div className="space-y-1 pt-2">
+                                    <h4 className="text-xs font-bold text-zinc-400 uppercase tracking-wider">{t.licenseTitle}</h4>
+                                    <p className="text-[11px] text-zinc-500 leading-normal bg-zinc-950 p-3 border border-zinc-900 font-mono">
+                                        Creative Commons Zero v1.0 Universal<br />
+                                        Este proyecto está dedicado al dominio público de forma global. Puedes copiar, modificar y distribuir el trabajo sin solicitar ningún permiso.
                                     </p>
                                 </div>
                             </div>
                         )}
-
                     </div>
 
-                    <footer className="p-3 border-t border-gray-900 text-center">
-                        <button
-                            onClick={() => {
-                                setSearchQuery("");
-                                setCurrentPage("home");
-                                fetchVideos("");
-                            }}
-                            className="bg-zinc-800 text-zinc-300 px-4 py-1.5 font-bold hover:bg-zinc-700 text-xs tracking-wider transition rounded-none uppercase border border-zinc-700"
+                    {/* Footer de navegación fijo en la parte inferior */}
+                    <footer className="bg-black border-t border-zinc-900 py-3 px-4 flex justify-center items-center gap-12 sticky bottom-0 z-40">
+                        <button 
+                            onClick={goBack} 
+                            disabled={historyPages.length <= 1}
+                            className="text-white hover:text-cyan-400 disabled:text-zinc-700 transition"
+                            title="Atrás"
                         >
-                            {currentLanguage === "Español" ? "Volver al Inicio" : currentLanguage === "English" ? "Back to Home" : "Voltar ao Início"}
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                            </svg>
+                        </button>
+                        <button 
+                            onClick={goHome}
+                            className="text-white hover:text-cyan-400 transition"
+                            title="Inicio"
+                        >
+                            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                            </svg>
                         </button>
                     </footer>
                 </div>
             );
         }
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
+        const root = tragedies = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
 </body>
