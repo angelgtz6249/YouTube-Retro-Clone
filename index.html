@@ -124,7 +124,17 @@
                 emptyFavs: "No has añadido ningún video a tus favoritos todavía.",
                 simulatedModeText: "Modo simulado",
                 apiError: "Error de conexión a internet o cuota de API agotada.",
-                retry: "Reintentar"
+                retry: "Reintentar",
+                navHistory: "Historial",
+                emptyHistory: "El historial de reproducciones está vacío.",
+                selectAll: "Seleccionar todo",
+                clearAllHistory: "Borrar todo el historial de reproducciones",
+                pauseHistory: "Pausar el historial de reproducciones",
+                resumeHistory: "Reanudar el historial de reproducciones",
+                deleteSelected: "Borrar seleccionado",
+                clearSearchHistory: "Borrar historial de búsqueda",
+                incognitoOn: "Modo incógnito: activado",
+                incognitoOff: "Modo incógnito: desactivado"
             },
             English: {
                 searchPlaceholder: "Search...",
@@ -177,7 +187,17 @@
                 emptyFavs: "You haven't added any videos to your favorites yet.",
                 simulatedModeText: "Simulated mode",
                 apiError: "Internet connection error or API quota exceeded.",
-                retry: "Retry"
+                retry: "Retry",
+                navHistory: "History",
+                emptyHistory: "Watch history is empty.",
+                selectAll: "Select all",
+                clearAllHistory: "Clear all watch history",
+                pauseHistory: "Pause watch history",
+                resumeHistory: "Resume watch history",
+                deleteSelected: "Delete selected",
+                clearSearchHistory: "Clear search history",
+                incognitoOn: "Incognito mode: activated",
+                incognitoOff: "Incognito mode: deactivated"
             },
             Português: {
                 searchPlaceholder: "Buscar...",
@@ -230,7 +250,80 @@
                 emptyFavs: "Você ainda não adicionou nenhum vídeo aos seus favoritos.",
                 simulatedModeText: "Modo simulado",
                 apiError: "Erro de conexão com a internet ou cota da API esgotada.",
-                retry: "Repetir"
+                retry: "Repetir",
+                navHistory: "Histórico",
+                emptyHistory: "O histórico de exibição está vazio.",
+                selectAll: "Selecionar tudo",
+                clearAllHistory: "Limpar todo o histórico de exibição",
+                pauseHistory: "Pausar histórico de exibição",
+                resumeHistory: "Retomar histórico de exibição",
+                deleteSelected: "Excluir selecionado",
+                clearSearchHistory: "Limpar histórico de pesquisa",
+                incognitoOn: "Modo incógnito: ativado",
+                incognitoOff: "Modo incógnito: desativado"
+            },
+            Русский: {
+                searchPlaceholder: "Поиск...",
+                likes: "Лайки",
+                views: "Просмотры",
+                subscribers: "Подписчики",
+                videoViews: "Просмотры видео",
+                uploads: "Видео",
+                channelUploads: "Загрузки канала",
+                comments: "Комментарии",
+                language: "Язык",
+                about: "О приложении",
+                aboutText: "Это приложение представляет собой памятный клон YouTube, оптимизированный для симуляции классических мобильных интерфейсов в соответствии с предоставленными спецификациями дизайна.",
+                licenseText: "Проект распространяется под лицензией Creative Commons Zero 1.0 Universal.",
+                duration: "Длительность",
+                noResults: "Видео не найдены.",
+                fallbackVideoTitle: "Название видео",
+                fallbackDesc: "Описание к этому видео отсутствует.",
+                fallbackChannelDesc: "Описание к этому каналу отсутствует.",
+                configTitle: "Настройки",
+                watchOnYoutube: "Смотреть на YouTube",
+                simulatedModeActive: "Демо-режим: включен",
+                simulatedModeInactive: "Демо-режим: выключен",
+                holoActive: "Тема Holo: включена",
+                holoInactive: "Тема Holo: выключена",
+                createdDate: "Создан",
+                region: "Регион",
+                unknown: "Неизвестно",
+                close: "Закрыть",
+                share: "Поделиться",
+                shareWhatsapp: "WhatsApp",
+                shareFacebook: "Facebook",
+                shareTwitter: "Twitter",
+                sharePinterest: "Pinterest",
+                shareLinkedin: "LinkedIn",
+                shareCopy: "Копировать ссылку",
+                shareMp4: "Скачать MP4 (360p)",
+                shareMp3: "Скачать MP3 (Аудио)",
+                subscribe: "Подписаться",
+                unsubscribe: "Отписаться",
+                addToFavorites: "В избранное",
+                removeFromFavorites: "Удалить из избранного",
+                suggestions: "Рекомендации",
+                navHome: "Главная",
+                navSubs: "Подписки",
+                navSearch: "Поиск",
+                navFavs: "Избранное",
+                navConfig: "Настройки",
+                emptySubs: "Вы еще не подписались ни на один канал.",
+                emptyFavs: "Вы еще не добавили ни одного видео в избранное.",
+                simulatedModeText: "Демо-режим",
+                apiError: "Ошибка интернет-соединения или исчерпан лимит API.",
+                retry: "Повторить",
+                navHistory: "История",
+                emptyHistory: "История просмотров пуста.",
+                selectAll: "Выбрать все",
+                clearAllHistory: "Очистить всю историю просмотров",
+                pauseHistory: "Приостановить запись истории",
+                resumeHistory: "Возобновить запись истории",
+                deleteSelected: "Удалить выбранное",
+                clearSearchHistory: "Очистить историю поиска",
+                incognitoOn: "Режим инкогнито: включен",
+                incognitoOff: "Режим инкогнито: выключен"
             }
         };
 
@@ -254,11 +347,90 @@
 
             const [pageHistory, setPageHistory] = React.useState(["home"]);
             const [footerMenuOpen, setFooterMenuOpen] = React.useState(false);
-            const [subscribedChannels, setSubscribedChannels] = React.useState([]);
-            const [favoriteVideos, setFavoriteVideos] = React.useState([]);
+            
+            // Estados añadidos e integrados con localStorage
+            const [subscribedChannels, setSubscribedChannels] = React.useState(() => {
+                const saved = localStorage.getItem("yt_retro_subs");
+                return saved ? JSON.parse(saved) : [];
+            });
+            const [favoriteVideos, setFavoriteVideos] = React.useState(() => {
+                const saved = localStorage.getItem("yt_retro_favs");
+                return saved ? JSON.parse(saved) : [];
+            });
+            const [watchHistory, setWatchHistory] = React.useState(() => {
+                const saved = localStorage.getItem("yt_retro_history");
+                return saved ? JSON.parse(saved) : [];
+            });
+            const [historyPaused, setHistoryPaused] = React.useState(() => {
+                const saved = localStorage.getItem("yt_retro_history_paused");
+                return saved ? JSON.parse(saved) === "true" : false;
+            });
+            const [searchHistory, setSearchHistory] = React.useState(() => {
+                const saved = localStorage.getItem("yt_retro_search_history");
+                return saved ? JSON.parse(saved) : [];
+            });
+            const [incognitoEnabled, setIncognitoEnabled] = React.useState(() => {
+                const saved = localStorage.getItem("yt_retro_incognito");
+                return saved ? JSON.parse(saved) === "true" : false;
+            });
+
+            const [selectedHistoryVideos, setSelectedHistoryVideos] = React.useState([]);
+            const [activeSubMenu, setActiveSubMenu] = React.useState(null);
+            const [isLandscape, setIsLandscape] = React.useState(window.innerWidth > window.innerHeight);
+
+            // Recomendaciones fijas globales simuladas de términos buscados de usuarios (5 términos)
+            const globalKeywords = ["Minecraft 2012 alpha", "Gangnam Style live", "iPhone 5 review", "Retro gaming setup", "Harlem Shake original"];
+
             const searchInputRef = React.useRef(null);
+            const playbackTimerRef = React.useRef(null);
 
             const t = translations[currentLanguage];
+
+            React.useEffect(() => {
+                const handleResize = () => setIsLandscape(window.innerWidth > window.innerHeight);
+                window.addEventListener("resize", handleResize);
+                return () => window.removeEventListener("resize", handleResize);
+            }, []);
+
+            React.useEffect(() => {
+                localStorage.setItem("yt_retro_subs", JSON.stringify(subscribedChannels));
+            }, [subscribedChannels]);
+
+            React.useEffect(() => {
+                localStorage.setItem("yt_retro_favs", JSON.stringify(favoriteVideos));
+            }, [favoriteVideos]);
+
+            React.useEffect(() => {
+                localStorage.setItem("yt_retro_history", JSON.stringify(watchHistory));
+            }, [watchHistory]);
+
+            React.useEffect(() => {
+                localStorage.setItem("yt_retro_history_paused", historyPaused.toString());
+            }, [historyPaused]);
+
+            React.useEffect(() => {
+                localStorage.setItem("yt_retro_search_history", JSON.stringify(searchHistory));
+            }, [searchHistory]);
+
+            React.useEffect(() => {
+                localStorage.setItem("yt_retro_incognito", incognitoEnabled.toString());
+            }, [incognitoEnabled]);
+
+            // Manejo del contador de 1 segundo en el reproductor para añadir al historial
+            React.useEffect(() => {
+                if (currentPage === "player" && selectedVideo && !historyPaused && !incognitoEnabled) {
+                    playbackTimerRef.current = setTimeout(() => {
+                        setWatchHistory(prev => {
+                            const exists = prev.some(v => v.id === selectedVideo.id);
+                            if (exists) return prev;
+                            return [selectedVideo, ...prev];
+                        });
+                    }, 1000);
+                }
+                return () => {
+                    if (playbackTimerRef.current) clearTimeout(playbackTimerRef.current);
+                };
+            }, [currentPage, selectedVideo, historyPaused, incognitoEnabled]);
 
             React.useEffect(() => {
                 fetch('manifest.json')
@@ -268,7 +440,16 @@
                     })
                     .then(data => {
                         if (data && data.icons && data.icons.length > 0) {
-                            setManifestIconUrl(data.icons[0].src);
+                            const iconSrc = data.icons[0].src;
+                            setManifestIconUrl(iconSrc);
+                            
+                            let link = document.querySelector("link[rel~='icon']");
+                            if (!link) {
+                                link = document.createElement('link');
+                                link.rel = 'icon';
+                                document.getElementsByTagName('head')[0].appendChild(link);
+                            }
+                            link.href = iconSrc;
                         }
                     })
                     .catch(() => {
@@ -299,6 +480,7 @@
                 setCurrentPage(page);
                 setFooterMenuOpen(false);
                 setShareMenuOpen(false);
+                setActiveSubMenu(null);
             };
 
             const goBack = () => {
@@ -310,6 +492,7 @@
                     setCurrentPage(previousPage);
                     setShareMenuOpen(false);
                     setFooterMenuOpen(false);
+                    setActiveSubMenu(null);
                 }
             };
 
@@ -577,9 +760,30 @@
                 fetchVideos(searchQuery);
             }, [currentLanguage, isSimulated]);
 
+            // Mecánica e inserción en el historial de búsqueda dinámico de 3 niveles
             const handleSearch = (e) => {
                 if (e) e.preventDefault();
+                if (searchQuery.trim() !== "" && !incognitoEnabled) {
+                    setSearchHistory(prev => {
+                        const filtered = prev.filter(item => item !== searchQuery);
+                        const newHistory = [searchQuery, ...filtered];
+                        return newHistory.slice(0, 3);
+                    });
+                }
                 fetchVideos(searchQuery);
+                navigateTo("search");
+            };
+
+            const handleSearchTermClick = (term) => {
+                setSearchQuery(term);
+                if (!incognitoEnabled) {
+                    setSearchHistory(prev => {
+                        const filtered = prev.filter(item => item !== term);
+                        const newHistory = [term, ...filtered];
+                        return newHistory.slice(0, 3);
+                    });
+                }
+                fetchVideos(term);
                 navigateTo("search");
             };
 
@@ -595,6 +799,10 @@
                         fetchSuggestions(video);
                     }, 2000); 
                 }
+            };
+
+            const handleVideoClickFromList = (video) => {
+                handleVideoClick(video);
             };
 
             const handleChannelClick = (channelId, channelName) => {
@@ -641,26 +849,75 @@
                     navigator.clipboard.writeText(videoUrl);
                     alert("¡Enlace copiado al portapapeles!");
                 } else if (type === "mp4" || type === "mp3") {
-                    window.open(`https://www.youtubepp.com/watch?v=${selectedVideo.id}${type === "mp3" ? "#mp3" : ""}`, "_blank");
+                    // Ejecuta una descarga directa simulada sin enlaces externos
+                    const fileExtension = type === "mp4" ? "mp4" : "mp3";
+                    const blob = new Blob(["Archivo multimedia simulado"], { type: type === "mp4" ? "video/mp4" : "audio/mp3" });
+                    const dlUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = dlUrl;
+                    a.download = `video_retro_${selectedVideo.id || "file"}.${fileExtension}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(dlUrl);
                 }
                 setShareMenuOpen(false);
             };
 
+            // Acciones masivas e individuales para la página del Historial de reproducción
+            const toggleSelectHistoryVideo = (id) => {
+                setSelectedHistoryVideos(prev => 
+                    prev.includes(id) ? prev.filter(vidId => vidId !== id) : [...prev, id]
+                );
+            };
+
+            const handleSelectAllHistory = () => {
+                if (selectedHistoryVideos.length === watchHistory.length) {
+                    setSelectedHistoryVideos([]);
+                } else {
+                    setSelectedHistoryVideos(watchHistory.map(v => v.id));
+                }
+            };
+
+            const handleClearAllHistory = () => {
+                setWatchHistory([]);
+                setSelectedHistoryVideos([]);
+            };
+
+            const handleDeleteSelectedHistory = () => {
+                setWatchHistory(prev => prev.filter(v => !selectedHistoryVideos.includes(v.id)));
+                setSelectedHistoryVideos([]);
+            };
+
             const showSearchBar = currentPage === "home" || currentPage === "search";
 
+            // Definición de estilos dinámicos para los botones del menú contextual cuadriculado
+            const getGridItemClass = () => {
+                if (holoEnabled) {
+                    return "bg-black/80 text-white border border-[#33b5e5]/40 flex flex-col items-center justify-center p-2 transition-all active:bg-zinc-800/90";
+                }
+                return "bg-neutral-200 text-neutral-800 border border-neutral-300 flex flex-col items-center justify-center p-2 transition-all active:bg-orange-500 active:text-white";
+            };
+
+            const getGridIconColorClass = () => {
+                return holoEnabled ? "fill-white" : "fill-neutral-600 active:fill-white";
+            };
+
             return (
-                <div className="w-full max-w-md landscape:max-w-none mx-auto min-h-screen bg-black border-x border-gray-800 flex flex-col justify-between px-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] pb-14 relative">
+                <div 
+                    onClick={() => {
+                        setFooterMenuOpen(false);
+                        setShareMenuOpen(false);
+                    }}
+                    className="w-full max-w-md landscape:max-w-none mx-auto min-h-screen bg-black border-x border-gray-800 flex flex-col justify-between px-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] pb-14 relative"
+                >
                     
                     {showErrorModal && (
                         <div className="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 z-[9999]">
                             {holoEnabled ? (
                                 <div className="bg-zinc-950 border-2 border-[#33b5e5] w-full max-w-xs p-4 flex flex-col font-sans">
-                                    <h3 className="text-[#33b5e5] font-bold text-base tracking-wide uppercase mb-3">
-                                        Error
-                                    </h3>
-                                    <p className="text-white text-sm leading-normal mb-5">
-                                        {t.apiError}
-                                    </p>
+                                    <h3 className="text-[#33b5e5] font-bold text-base tracking-wide uppercase mb-3">Error</h3>
+                                    <p className="text-white text-sm leading-normal mb-5">{t.apiError}</p>
                                     <button
                                         onClick={handleRetry}
                                         className="self-end bg-zinc-900 text-[#33b5e5] border border-[#33b5e5]/50 px-5 py-2 font-bold uppercase tracking-wider text-xs hover:bg-zinc-800 active:bg-zinc-700 transition"
@@ -671,9 +928,7 @@
                             ) : (
                                 <div className="bg-zinc-900 border border-zinc-800 w-full max-w-xs flex flex-col overflow-hidden shadow-2xl">
                                     <div className="bg-white p-4">
-                                        <p className="text-black text-sm font-semibold leading-normal">
-                                            {t.apiError}
-                                        </p>
+                                        <p className="text-black text-sm font-semibold leading-normal">{t.apiError}</p>
                                     </div>
                                     <div className="bg-zinc-900 p-2.5 flex justify-end border-t border-zinc-800">
                                         <button
@@ -704,8 +959,8 @@
                         </header>
 
                         {showSearchBar && (
-                            <div className="bg-black p-2 flex items-center justify-between gap-2 border-b border-gray-900">
-                                <form onSubmit={handleSearch} className="flex flex-1 items-center gap-2">
+                            <div className="bg-black p-2 flex flex-col gap-2 border-b border-gray-900">
+                                <form onSubmit={handleSearch} className="flex items-center gap-2">
                                     <div className={`flex flex-1 items-center relative ${
                                         holoEnabled 
                                         ? "bg-transparent border-b-2 border-[#33b5e5] before:content-[''] before:absolute before:left-0 before:bottom-0 before:w-0.5 before:h-2 before:bg-[#33b5e5] after:content-[''] after:absolute after:right-0 after:bottom-0 after:w-0.5 after:h-2 after:bg-[#33b5e5]" 
@@ -734,21 +989,42 @@
                                     </button>
                                 </form>
 
-                                <div
-                                    onClick={() => navigateTo("config")}
-                                    className={`vertical-dots pl-1 py-1 ${holoEnabled ? "holo-square" : ""}`}
-                                    title={t.configTitle}
-                                >
-                                    <div></div>
-                                    <div></div>
-                                    <div></div>
+                                {/* Visualización de los términos del historial de búsqueda */}
+                                {searchHistory.length > 0 && (
+                                    <div className="flex flex-col gap-1 mt-1">
+                                        {searchHistory.map((term, index) => (
+                                            <div 
+                                                key={index}
+                                                onClick={() => handleSearchTermClick(term)}
+                                                className="bg-zinc-800 text-xs text-gray-300 px-2 py-1.5 cursor-pointer font-mono hover:bg-zinc-700 transition"
+                                            >
+                                                {term}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {/* Recomendaciones globales de palabras clave de otros usuarios */}
+                                <div className="mt-1">
+                                    <p className="text-[10px] text-zinc-500 uppercase tracking-wider font-bold mb-1">Recomendaciones clásicas:</p>
+                                    <div className="flex flex-wrap gap-1">
+                                        {globalKeywords.map((kw, idx) => (
+                                            <span 
+                                                key={idx}
+                                                onClick={() => handleSearchTermClick(kw)}
+                                                className="bg-zinc-900 border border-zinc-800 text-[10px] text-zinc-400 px-2 py-0.5 rounded-full cursor-pointer hover:text-white transition"
+                                            >
+                                                {kw}
+                                            </span>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         )}
 
                         {loading && (
                             <div className={`text-center p-6 font-bold ${holoEnabled ? "text-[#33b5e5]" : "text-yellow-400"}`}>
-                                CARGANDO...
+                                {currentLanguage === "Русский" ? "ЗАГРУЗКА..." : "CARGANDO..."}
                             </div>
                         )}
 
@@ -763,13 +1039,15 @@
                                         <div
                                             key={`${video.id}-${index}`}
                                             className="flex gap-3 cursor-pointer hover:bg-zinc-900 p-1.5 transition w-full"
-                                            onClick={() => handleVideoClick(video)}
+                                            onClick={() => handleVideoClickFromList(video)}
                                         >
                                             <div className="w-32 landscape:w-44 h-20 landscape:h-28 bg-zinc-950 flex-shrink-0 flex items-center justify-center border border-gray-700 overflow-hidden relative">
                                                 {video.thumbnail ? (
                                                     <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" />
                                                 ) : (
-                                                    <span className="text-[10px] font-bold font-mono tracking-tighter uppercase p-1 text-center bg-white w-full h-full flex items-center justify-center select-none text-zinc-600">Simulado</span>
+                                                    <span className="text-[10px] font-bold font-mono tracking-tighter uppercase p-1 text-center bg-white w-full h-full flex items-center justify-center select-none text-zinc-600">
+                                                        {currentLanguage === "Русский" ? "Демо" : "Simulado"}
+                                                    </span>
                                                 )}
                                                 <span className="absolute bottom-0.5 right-0.5 bg-black/80 text-[10px] text-white px-1 font-mono">
                                                     {video.duration}
@@ -879,25 +1157,16 @@
                                             </a>
                                         )}
 
-                                        <div className="relative inline-block">
+                                        <div className="inline-block">
                                             <p 
-                                                onClick={() => setShareMenuOpen(!shareMenuOpen)}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setShareMenuOpen(!shareMenuOpen);
+                                                }}
                                                 className={`font-bold text-sm tracking-wide uppercase cursor-pointer select-none underline ${holoEnabled ? "text-[#33b5e5] hover:text-cyan-300" : "text-yellow-400 hover:text-yellow-300"}`}
                                             >
                                                 {t.share}
                                             </p>
-                                            {shareMenuOpen && (
-                                                <div className={`absolute left-0 mt-1 w-52 bg-zinc-900 border-2 shadow-2xl z-50 font-mono text-xs divide-y divide-zinc-800 max-h-60 overflow-y-auto ${holoEnabled ? "border-[#33b5e5]" : "border-zinc-700"}`}>
-                                                    <button onClick={() => handleShareAction("whatsapp")} className="w-full text-left px-3 py-2 text-white hover:bg-zinc-800 transition font-bold block"># {t.shareWhatsapp}</button>
-                                                    <button onClick={() => handleShareAction("facebook")} className="w-full text-left px-3 py-2 text-white hover:bg-zinc-800 transition font-bold block"># {t.shareFacebook}</button>
-                                                    <button onClick={() => handleShareAction("twitter")} className="w-full text-left px-3 py-2 text-white hover:bg-zinc-800 transition font-bold block"># {t.shareTwitter}</button>
-                                                    <button onClick={() => handleShareAction("pinterest")} className="w-full text-left px-3 py-2 text-white hover:bg-zinc-800 transition font-bold block"># {t.sharePinterest}</button>
-                                                    <button onClick={() => handleShareAction("linkedin")} className="w-full text-left px-3 py-2 text-white hover:bg-zinc-800 transition font-bold block"># {t.shareLinkedin}</button>
-                                                    <button onClick={() => handleShareAction("copy")} className="w-full text-left px-3 py-2 text-white hover:bg-zinc-800 transition font-bold block"># {t.shareCopy}</button>
-                                                    <button onClick={() => handleShareAction("mp4")} className="w-full text-left px-3 py-2 text-zinc-300 hover:bg-zinc-800 transition font-medium block">↓ {t.shareMp4}</button>
-                                                    <button onClick={() => handleShareAction("mp3")} className="w-full text-left px-3 py-2 text-zinc-300 hover:bg-zinc-800 transition font-medium block">♫ {t.shareMp3}</button>
-                                                </div>
-                                            )}
                                         </div>
 
                                         <p 
@@ -909,11 +1178,60 @@
                                     </div>
                                 </div>
 
+                                {/* Menú contextual de Compartir cuadriculado adaptativo */}
+                                {shareMenuOpen && (
+                                    <div 
+                                        onClick={(e) => e.stopPropagation()}
+                                        className={`mt-2 p-2 w-full grid gap-2 z-50 ${
+                                            isLandscape ? "grid-cols-6" : "grid-cols-3"
+                                        } ${holoEnabled ? "bg-black/90 border-t border-[#33b5e5]" : "bg-neutral-100 border-t border-neutral-300"}`}
+                                    >
+                                        <button onClick={() => handleShareAction("whatsapp")} className={getGridItemClass()}>
+                                            <span className="text-xs font-bold">{t.shareWhatsapp}</span>
+                                        </button>
+                                        <button onClick={() => handleShareAction("facebook")} className={getGridItemClass()}>
+                                            <span className="text-xs font-bold">{t.shareFacebook}</span>
+                                        </button>
+                                        <button onClick={() => handleShareAction("twitter")} className={getGridItemClass()}>
+                                            <span className="text-xs font-bold">{t.shareTwitter}</span>
+                                        </button>
+                                        <button onClick={() => handleShareAction("pinterest")} className={getGridItemClass()}>
+                                            <span className="text-xs font-bold">{t.sharePinterest}</span>
+                                        </button>
+                                        <button onClick={() => handleShareAction("linkedin")} className={getGridItemClass()}>
+                                            <span className="text-xs font-bold">{t.shareLinkedin}</span>
+                                        </button>
+                                        
+                                        {/* Botón de Más con submenú integrado */}
+                                        <div className="relative flex flex-col justify-center">
+                                            <button 
+                                                onClick={() => setActiveSubMenu(activeSubMenu === "more" ? null : "more")} 
+                                                className={`${getGridItemClass()} w-full h-full`}
+                                            >
+                                                <svg className={`w-4 h-4 mb-0.5 ${getGridIconColorClass()}`} viewBox="0 0 24 24">
+                                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 13l-4-4h8l-4 4z"/>
+                                                </svg>
+                                                <span className="text-[10px] font-bold">Más</span>
+                                            </button>
+                                            
+                                            {activeSubMenu === "more" && (
+                                                <div className={`absolute bottom-full left-0 mb-1 w-40 border-2 z-50 font-mono text-[11px] divide-y shadow-2xl ${
+                                                    holoEnabled ? "bg-zinc-950 border-[#33b5e5] divide-zinc-800 text-[#33b5e5]" : "bg-white border-zinc-700 divide-gray-200 text-black"
+                                                }`}>
+                                                    <button onClick={() => handleShareAction("copy")} className="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white font-bold block">{t.shareCopy}</button>
+                                                    <button onClick={() => handleShareAction("mp3")} className="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white font-bold block">{t.shareMp3}</button>
+                                                    <button onClick={() => handleShareAction("mp4")} className="w-full text-left px-3 py-2 hover:bg-zinc-800 hover:text-white font-bold block">{t.shareMp4}</button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
                                 <div className="mt-3">
                                     <div className={`${holoEnabled ? "bg-zinc-900 text-[#33b5e5] border-b border-[#33b5e5]" : "bg-gray-700 text-white border-b border-black"} font-bold px-2 py-1.5 text-sm tracking-wider flex justify-between items-center`}>
                                         <span>{t.suggestions}</span>
                                         <span className="text-[10px] bg-zinc-600 px-1.5 py-0.5 text-gray-300 font-mono">
-                                            {suggestedVideos.length} VIDEOS
+                                            {suggestedVideos.length} {currentLanguage === "Русский" ? "ВИДЕО" : "VIDEOS"}
                                         </span>
                                     </div>
                                     <div className="mt-2 space-y-4 grid grid-cols-1 landscape:grid-cols-2 landscape:gap-4 landscape:space-y-0 border-b border-gray-900 pb-4">
@@ -922,25 +1240,27 @@
                                                 <div
                                                     key={`sug-${video.id}-${idx}`}
                                                     className="flex gap-3 cursor-pointer hover:bg-zinc-900 p-1 transition"
-                                                    onClick={() => handleVideoClick(video)}
+                                                    onClick={() => handleVideoClickFromList(video)}
                                                 >
                                                     <div className="w-28 landscape:w-36 h-16 landscape:h-20 bg-zinc-950 flex-shrink-0 flex items-center justify-center overflow-hidden relative border border-gray-700">
                                                         {video.thumbnail ? (
                                                             <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" />
                                                         ) : (
-                                                            <span className="text-[10px] text-zinc-400 font-bold font-mono tracking-tighter uppercase p-1 bg-white text-zinc-600 w-full h-full flex items-center justify-center">Simulado</span>
+                                                            <span className="text-[10px] text-zinc-400 font-bold font-mono tracking-tighter uppercase p-1 bg-white text-zinc-600 w-full h-full flex items-center justify-center">
+                                                                {currentLanguage === "Русский" ? "Демо" : "Simulado"}
+                                                            </span>
                                                         )}
                                                     </div>
                                                     <div className="text-[12px] landscape:text-[14px] text-white leading-tight flex-1">
                                                         <h4 className="font-bold line-clamp-1">{video.title}</h4>
-                                                        <p className="font-semibold text-[10px] text-zinc-300"># {video.views} vistas</p>
+                                                        <p className="font-semibold text-[10px] text-zinc-300"># {video.views} {t.views.toLowerCase()}</p>
                                                         <p className={`font-bold text-[11px] ${holoEnabled ? "text-[#33b5e5]" : "text-yellow-500"}`}>{video.channelName}</p>
                                                     </div>
                                                 </div>
                                             ))
                                         ) : (
                                             <div className="text-zinc-500 text-xs py-2 italic font-mono col-span-2 text-center">
-                                                Cargando sugerencias...
+                                                {currentLanguage === "Русский" ? "Загрузка рекомендаций..." : "Cargando sugerencias..."}
                                             </div>
                                         )}
                                     </div>
@@ -960,7 +1280,7 @@
                                             ))
                                         ) : (
                                             <div className="text-zinc-500 text-xs py-2 italic">
-                                                No hay comentarios disponibles en este video.
+                                                {currentLanguage === "Русский" ? "Комментарии к этому видео отсутствуют." : "No hay comentarios disponibles en este video."}
                                             </div>
                                         )}
                                     </div>
@@ -976,7 +1296,9 @@
                                             {selectedChannel.avatar ? (
                                                 <img src={selectedChannel.avatar} alt={selectedChannel.name} className="w-full h-full object-cover" />
                                             ) : (
-                                                <span className="text-zinc-600 font-bold text-xs uppercase font-mono">Canal</span>
+                                                <span className="text-zinc-600 font-bold text-xs uppercase font-mono">
+                                                    {currentLanguage === "Русский" ? "Канал" : "Canal"}
+                                                </span>
                                             )}
                                         </div>
 
@@ -1015,13 +1337,15 @@
                                                 <div
                                                     key={`${video.id}-${idx}`}
                                                     className="flex gap-3 cursor-pointer hover:bg-zinc-900 p-1 transition"
-                                                    onClick={() => handleVideoClick(video)}
+                                                    onClick={() => handleVideoClickFromList(video)}
                                                 >
                                                     <div className="w-28 landscape:w-36 h-16 landscape:h-20 bg-zinc-950 flex-shrink-0 flex items-center justify-center overflow-hidden relative border border-gray-700">
                                                         {video.thumbnail ? (
                                                             <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" />
                                                         ) : (
-                                                            <span className="text-[10px] text-zinc-400 font-mono font-bold uppercase">Video</span>
+                                                            <span className="text-[10px] text-zinc-400 font-mono font-bold uppercase">
+                                                                {currentLanguage === "Русский" ? "Видео" : "Video"}
+                                                            </span>
                                                         )}
                                                     </div>
                                                     <div className="text-[12px] landscape:text-[14px] text-white leading-tight flex-1">
@@ -1031,7 +1355,9 @@
                                                 </div>
                                             ))
                                         ) : (
-                                            <p className="text-zinc-500 text-xs italic p-2 col-span-2 text-center">No hay videos subidos disponibles.</p>
+                                            <p className="text-zinc-500 text-xs italic p-2 col-span-2 text-center">
+                                                {currentLanguage === "Русский" ? "Загруженные видео отсутствуют." : "No hay videos subidos disponibles."}
+                                            </p>
                                         )}
                                     </div>
                                 </div>
@@ -1072,13 +1398,15 @@
                                             <div
                                                 key={`fav-${video.id}-${index}`}
                                                 className="flex gap-3 cursor-pointer hover:bg-zinc-900 p-1.5 transition w-full"
-                                                onClick={() => handleVideoClick(video)}
+                                                onClick={() => handleVideoClickFromList(video)}
                                             >
                                                 <div className="w-32 landscape:w-44 h-20 landscape:h-28 bg-zinc-950 flex-shrink-0 flex items-center justify-center border border-gray-700 overflow-hidden relative">
                                                     {video.thumbnail ? (
                                                         <img src={video.thumbnail} alt={video.title} className="w-full h-full object-cover" />
                                                     ) : (
-                                                        <span className="text-[10px] text-zinc-400 font-bold font-mono tracking-tighter uppercase p-1 bg-white text-zinc-600 w-full h-full flex items-center justify-center">Simulado</span>
+                                                        <span className="text-[10px] text-zinc-400 font-bold font-mono tracking-tighter uppercase p-1 bg-white text-zinc-600 w-full h-full flex items-center justify-center">
+                                                            {currentLanguage === "Русский" ? "Демо" : "Simulado"}
+                                                        </span>
                                                     )}
                                                     <span className="absolute bottom-0.5 right-0.5 bg-black/80 text-[10px] text-white px-1 font-mono">
                                                         {video.duration}
@@ -1090,6 +1418,63 @@
                                                     <p className="mt-1 font-semibold"># {t.likes}: {video.likes}</p>
                                                     <p className="font-semibold"># {t.views}: {video.views}</p>
                                                     <p className="text-gray-400 font-medium">{video.date}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Nueva sección de interfaz para el Historial de reproducciones */}
+                        {currentPage === "history" && (
+                            <div className="p-3">
+                                <h2 className={`text-lg font-bold border-b pb-1 mb-2 uppercase tracking-wider ${holoEnabled ? "text-[#33b5e5] border-[#33b5e5]" : "text-yellow-400 border-gray-700"}`}>
+                                    {t.navHistory}
+                                </h2>
+                                
+                                {/* 4 Textos superiores amarillos/azules con funciones del historial */}
+                                <div className="flex flex-wrap gap-x-4 gap-y-1 mb-4 text-xs font-bold font-mono">
+                                    <span onClick={handleSelectAllHistory} className={`cursor-pointer underline ${holoEnabled ? "text-[#33b5e5]" : "text-yellow-400"}`}>
+                                        {t.selectAll}
+                                    </span>
+                                    <span onClick={handleClearAllHistory} className={`cursor-pointer underline ${holoEnabled ? "text-[#33b5e5]" : "text-yellow-400"}`}>
+                                        {t.clearAllHistory}
+                                    </span>
+                                    <span onClick={() => setHistoryPaused(!historyPaused)} className={`cursor-pointer underline ${holoEnabled ? "text-[#33b5e5]" : "text-yellow-400"}`}>
+                                        {historyPaused ? t.resumeHistory : t.pauseHistory}
+                                    </span>
+                                    <span 
+                                        onClick={selectedHistoryVideos.length > 0 ? handleDeleteSelectedHistory : null} 
+                                        className={`underline ${selectedHistoryVideos.length > 0 ? "cursor-pointer" : "opacity-40 cursor-not-allowed"} ${holoEnabled ? "text-[#33b5e5]" : "text-yellow-400"}`}
+                                    >
+                                        {t.deleteSelected}
+                                    </span>
+                                </div>
+
+                                {watchHistory.length === 0 ? (
+                                    <p className="text-zinc-500 text-sm italic">{t.emptyHistory}</p>
+                                ) : (
+                                    <div className="space-y-3">
+                                        {watchHistory.map((video, index) => (
+                                            <div key={`hist-${video.id}-${index}`} className="flex items-center gap-2 bg-zinc-950 p-1 border border-zinc-900">
+                                                <input 
+                                                    type="checkbox" 
+                                                    checked={selectedHistoryVideos.includes(video.id)}
+                                                    onChange={() => toggleSelectHistoryVideo(video.id)}
+                                                    className="w-4 h-4 cursor-pointer accent-orange-500"
+                                                />
+                                                <div 
+                                                    className="flex flex-1 gap-2 cursor-pointer items-center"
+                                                    onClick={() => handleVideoClickFromList(video)}
+                                                >
+                                                    <div className="w-20 h-12 bg-zinc-900 flex-shrink-0 overflow-hidden relative">
+                                                        {video.thumbnail && <img src={video.thumbnail} className="w-full h-full object-cover" />}
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <h4 className="text-xs font-bold text-white line-clamp-1">{video.title}</h4>
+                                                        <p className="text-[10px] text-zinc-400">{video.channelName}</p>
+                                                    </div>
                                                 </div>
                                             </div>
                                         ))}
@@ -1121,14 +1506,30 @@
                                             {holoEnabled ? t.holoActive : t.holoInactive}
                                         </p>
                                     </div>
+
+                                    {/* Nuevas opciones añadidas a la sección de Configuración */}
+                                    <div className="flex flex-col items-start pt-2 border-t border-zinc-900 w-full gap-2">
+                                        <p 
+                                            onClick={() => setSearchHistory([])}
+                                            className={`font-bold text-sm tracking-wide uppercase cursor-pointer select-none underline ${holoEnabled ? "text-[#33b5e5]" : "text-yellow-400"}`}
+                                        >
+                                            {t.clearSearchHistory}
+                                        </p>
+                                        <p 
+                                            onClick={() => setIncognitoEnabled(!incognitoEnabled)}
+                                            className={`font-bold text-sm tracking-wide uppercase cursor-pointer select-none underline ${holoEnabled ? "text-[#33b5e5]" : "text-yellow-400"}`}
+                                        >
+                                            {incognitoEnabled ? t.incognitoOn : t.incognitoOff}
+                                        </p>
+                                    </div>
                                 </div>
 
                                 <div>
                                     <span className="text-base font-bold text-white tracking-wide uppercase block mb-2">
                                         {t.language}
                                     </span>
-                                    <div className="flex gap-4 font-bold text-sm">
-                                        {["Español", "English", "Português"].map((lang) => (
+                                    <div className="flex flex-wrap gap-4 font-bold text-sm">
+                                        {["Español", "English", "Português", "Русский"].map((lang) => (
                                             <p
                                                 key={lang}
                                                 onClick={() => setCurrentLanguage(lang)}
@@ -1158,9 +1559,48 @@
 
                     </div>
 
-                    <footer className={`fixed bottom-0 left-0 right-0 h-12 flex items-center justify-between px-6 z-50 transition-all ${
-                        holoEnabled ? "bg-zinc-950 border-t-2 border-[#33b5e5]" : "bg-zinc-950 border-t border-zinc-800"
-                    }`}>
+                    {/* Menú contextual de navegación del Footer de 3x2 o 6x1 */}
+                    {footerMenuOpen && (
+                        <div 
+                            onClick={(e) => e.stopPropagation()}
+                            className={`fixed left-0 right-0 bottom-12 p-2 grid gap-2 z-50 ${
+                                isLandscape ? "grid-cols-6" : "grid-cols-3"
+                            } ${holoEnabled ? "bg-black/80 border-t border-[#33b5e5]" : "bg-neutral-100 border-t border-neutral-300"}`}
+                        >
+                            <button onClick={() => { setSearchQuery(""); fetchVideos(""); navigateTo("home"); }} className={getGridItemClass()}>
+                                <span className="text-xs font-bold">{t.navHome}</span>
+                            </button>
+                            <button onClick={() => navigateTo("subscriptions")} className={getGridItemClass()}>
+                                <span className="text-xs font-bold">{t.navSubs}</span>
+                            </button>
+                            <button 
+                                onClick={() => { 
+                                    setFooterMenuOpen(false); 
+                                    if(currentPage !== "home" && currentPage !== "search") { navigateTo("home"); } 
+                                    setTimeout(() => searchInputRef.current?.focus(), 100); 
+                                }} 
+                                className={getGridItemClass()}
+                            >
+                                <span className="text-xs font-bold">{t.navSearch}</span>
+                            </button>
+                            <button onClick={() => navigateTo("favorites")} className={getGridItemClass()}>
+                                <span className="text-xs font-bold">{t.navFavs}</span>
+                            </button>
+                            <button onClick={() => navigateTo("history")} className={getGridItemClass()}>
+                                <span className="text-xs font-bold">{t.navHistory}</span>
+                            </button>
+                            <button onClick={() => navigateTo("config")} className={getGridItemClass()}>
+                                <span className="text-xs font-bold">{t.navConfig}</span>
+                            </button>
+                        </div>
+                    )}
+
+                    <footer 
+                        onClick={(e) => e.stopPropagation()}
+                        className={`fixed bottom-0 left-0 right-0 h-12 flex items-center justify-between px-6 z-50 transition-all ${
+                            holoEnabled ? "bg-zinc-950 border-t-2 border-[#33b5e5]" : "bg-zinc-950 border-t border-zinc-800"
+                        }`}
+                    >
                         <button 
                             onClick={goBack} 
                             disabled={pageHistory.length <= 1}
@@ -1171,50 +1611,16 @@
 
                         <div className="relative">
                             <div 
-                                onClick={() => setFooterMenuOpen(!footerMenuOpen)} 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setFooterMenuOpen(!footerMenuOpen);
+                                }} 
                                 className="hamburger-lines p-1"
                             >
                                 <div className={holoEnabled ? "bg-[#33b5e5]" : "bg-white"}></div>
                                 <div className={holoEnabled ? "bg-[#33b5e5]" : "bg-white"}></div>
                                 <div className={holoEnabled ? "bg-[#33b5e5]" : "bg-white"}></div>
                             </div>
-
-                            {footerMenuOpen && (
-                                <div className={`absolute right-0 bottom-10 w-44 bg-zinc-900 border-2 font-mono text-xs shadow-2xl divide-y divide-zinc-800 z-50 ${
-                                    holoEnabled ? "border-[#33b5e5]" : "border-zinc-700"
-                                }`}>
-                                    <button 
-                                        onClick={() => { setSearchQuery(""); fetchVideos(""); navigateTo("home"); }}
-                                        className={`w-full text-left px-3 py-2 hover:bg-zinc-800 transition font-bold block ${holoEnabled ? "text-[#33b5e5]" : "text-white"}`}
-                                    >
-                                        • {t.navHome}
-                                    </button>
-                                    <button 
-                                        onClick={() => navigateTo("subscriptions")}
-                                        className={`w-full text-left px-3 py-2 hover:bg-zinc-800 transition font-bold block ${holoEnabled ? "text-[#33b5e5]" : "text-white"}`}
-                                    >
-                                        • {t.navSubs}
-                                    </button>
-                                    <button 
-                                        onClick={() => { setFooterMenuOpen(false); if(currentPage !== "home" && currentPage !== "search") { navigateTo("home"); } setTimeout(() => searchInputRef.current?.focus(), 100); }}
-                                        className={`w-full text-left px-3 py-2 hover:bg-zinc-800 transition font-bold block ${holoEnabled ? "text-[#33b5e5]" : "text-white"}`}
-                                    >
-                                        • {t.navSearch}
-                                    </button>
-                                    <button 
-                                        onClick={() => navigateTo("favorites")}
-                                        className={`w-full text-left px-3 py-2 hover:bg-zinc-800 transition font-bold block ${holoEnabled ? "text-[#33b5e5]" : "text-white"}`}
-                                    >
-                                        • {t.navFavs}
-                                    </button>
-                                    <button 
-                                        onClick={() => navigateTo("config")}
-                                        className={`w-full text-left px-3 py-2 hover:bg-zinc-800 transition font-bold block ${holoEnabled ? "text-[#33b5e5]" : "text-white"}`}
-                                    >
-                                        • {t.navConfig}
-                                    </button>
-                                </div>
-                            )}
                         </div>
                     </footer>
                 </div>
